@@ -12,11 +12,9 @@ namespace GimmonixTest
         public static void Main(string[] args)
         {
             string inputPath = @"resources\hotels.csv";
-            string tmpPath = @"resources\hotelsTmp.csv";
             string outputPath = @"resources\hotelsNoDuplications.csv";
             string headliner = "";
             StreamReader streamReader = new StreamReader(inputPath);
-            StreamWriter tmpStreamWriter = new StreamWriter(tmpPath);
             StreamWriter streamWriter = new StreamWriter(outputPath);
 
             // reading the whole text and breaking it into lines + creating a list of Hotel objects (a Hotel for each line)
@@ -26,23 +24,16 @@ namespace GimmonixTest
             List<Hotel> hotelsSorted;
             List<Hotel> hotelsSortedAndRemoved;
 
-            // original
             ReadLinesAndCreateHotels(lines, ref hotelsOriginal, ref headliner);
+
             Console.WriteLine("Number of hotels before MergeSort(): {0}\n", hotelsOriginal.Count);
             Console.WriteLine("Headliner: {0}\n", headliner);
 
             hotelsSorted = MergeSort(hotelsOriginal);
-            Console.WriteLine("Number of hotels after MergeSort(): {0}\n", hotelsSorted.Count);
-            ReadHotelsAndCreateOutputFile(hotelsSorted, ref tmpStreamWriter, ref headliner);
-
             hotelsSortedAndRemoved = RemoveDuplicates(hotelsSorted);
+
             Console.WriteLine("Number of hotels after MergeSort() and RemoveDuplicates(): {0}\n", hotelsSortedAndRemoved.Count);
             ReadHotelsAndCreateOutputFile(hotelsSortedAndRemoved, ref streamWriter, ref headliner);
-
-            /*
-            foreach (Hotel hotel in hotelsSortedAndRemoved)
-                Console.WriteLine(hotel.ToString());
-            */
 
             Console.WriteLine("Done!\n");
         }
@@ -74,27 +65,6 @@ namespace GimmonixTest
 
                 streamWriter.Flush();
             }
-        }
-
-        public static List<Hotel> RemoveDuplicationsLinear(ref List<Hotel> inputList)
-        {
-            List<Hotel> outputList = new List<Hotel>();
-            bool flag = false;
-
-            for (int i = 0; i < inputList.Count - 1; i++)
-            {
-                for (int j = inputList.Count - 1; i < j; j--)
-                {
-                    Console.WriteLine("Comparing elements {0} and {1}", i, j);
-                    if (inputList.ElementAt(i).RowId == inputList.ElementAt(j).RowId)
-                    {
-                        Console.WriteLine("************* Match! *************");
-                        throw new Exception("************************************************");
-                    }
-                }
-            }
-
-            return outputList;
         }
 
         public static List<Hotel> MergeSort(List<Hotel> inputList)
@@ -162,7 +132,7 @@ namespace GimmonixTest
             int i;
             for (i = 0; i < inputList.Count - 1; i++)
             {
-                if (inputList[i].RowId != inputList[i + 1].RowId)
+                if (!inputList[i].RowId.Equals(inputList[i + 1].RowId))
                     outputList.Add(inputList[i]);
 
                 else
@@ -183,22 +153,64 @@ namespace GimmonixTest
             }
             return null;
         }
+
+        public static List<Hotel> RemoveDuplicationsLinear(ref List<Hotel> inputList)
+        {
+            List<Hotel> outputList = new List<Hotel>();
+            bool flag = false;
+
+            for (int i = 0; i < inputList.Count - 1; i++)
+            {
+                for (int j = inputList.Count - 1; i < j; j--)
+                {
+                    Console.WriteLine("Comparing elements {0} and {1}", i, j);
+                    if (inputList.ElementAt(i).RowId.Equals(inputList.ElementAt(j).RowId))
+                    {
+                        Console.WriteLine("************* Match! *************");
+                        throw new Exception("************************************************");
+                    }
+                }
+            }
+
+            return outputList;
+        }
     }
 
     public class Hotel
     {
         // Fields
-        public string RowId, SupplierId, SupplierKey, CountryCode, State, CityCode, CityName, NormalizedCityName, DisplayName, Address,
-            ZipCode, StarRating, ChainCode, Lat, Lng, RoomCount, Phone, Fax, Email, WebSite, CreateDate, IsActive, UpdateCycleId,
-            RatingUrl, RatingCount, Rating, PropertyType, StatusChangeDate, ChangeScore, PropertyCategory, PropertySubCategory, HotelInfoTranslation;
-
-        /*
-        public int RowId, SupplierId, CityCode, ZipCode, StarRating, RoomCount, UpdateCycleId, RatingCount, Rating, ChangeScore;
-        public double Lat, Lng;
-        public DateTime CreateDate, StatusChangeDate;
-        public string SupplierKey, CountryCode, State, CityName, NormalizedCityName, DisplayName, Address, ChainCode, Phone, Fax, Email, WebSite,
-            IsActive, RatingUrl, PropertyType, PropertyCategory, PropertySubCategory, HotelInfoTranslation;
-            */
+        public string RowId { get; set; }
+        public string SupplierId { get; set; }
+        public string SupplierKey { get; set; }
+        public string CountryCode { get; set; }
+        public string State { get; set; }
+        public string CityCode { get; set; }
+        public string CityName { get; set; }
+        public string NormalizedCityName { get; set; }
+        public string DisplayName { get; set; }
+        public string Address { get; set; }
+        public string ZipCode { get; set; }
+        public string StarRating { get; set; }
+        public string ChainCode { get; set; }
+        public string Lat { get; set; }
+        public string Lng { get; set; }
+        public string RoomCount { get; set; }
+        public string Phone { get; set; }
+        public string Fax { get; set; }
+        public string Email { get; set; }
+        public string WebSite { get; set; }
+        public string CreateDate { get; set; }
+        public string IsActive { get; set; }
+        public string UpdateCycleId { get; set; }
+        public string RatingUrl { get; set; }
+        public string RatingCount { get; set; }
+        public string Rating { get; set; }
+        public string PropertyType { get; set; }
+        public string StatusChangeDate { get; set; }
+        public string ChangeScore { get; set; }
+        public string PropertyCategory { get; set; }
+        public string PropertySubCategory { get; set; }
+        public string HotelInfoTranslation { get; set; }
 
         // CTORs
         public Hotel(string line)
@@ -214,44 +226,6 @@ namespace GimmonixTest
             Phone = tokens[i++]; Fax = tokens[i++]; Email = tokens[i++]; WebSite = tokens[i++]; CreateDate = tokens[i++]; IsActive = tokens[i++];
             UpdateCycleId = tokens[i++]; RatingUrl = tokens[i++]; RatingCount = tokens[i++]; Rating = tokens[i++]; PropertyType = tokens[i++];
             StatusChangeDate = tokens[i++]; ChangeScore = tokens[i++]; PropertyCategory = tokens[i++]; PropertySubCategory = tokens[i++]; HotelInfoTranslation = tokens[i++];
-
-            /*
-            string[] tokens = line.Split(',');
-            int i = 0;
-
-            int.TryParse(tokens[i++], out RowId);
-            int.TryParse(tokens[i++], out SupplierId);
-            SupplierKey = tokens[i++];
-            CountryCode = tokens[i++];
-            State = tokens[i++];
-            int.TryParse(tokens[i++], out CityCode);
-            CityName = tokens[i++];
-            NormalizedCityName = tokens[i++];
-            DisplayName = tokens[i++];
-            Address = tokens[i++];
-            int.TryParse(tokens[i++], out ZipCode);
-            int.TryParse(tokens[i++], out StarRating);
-            ChainCode = tokens[i++];
-            double.TryParse(tokens[i++], out Lat);
-            double.TryParse(tokens[i++], out Lng);
-            int.TryParse(tokens[i++], out RoomCount);
-            Phone = tokens[i++];
-            Fax = tokens[i++];
-            Email = tokens[i++];
-            WebSite = tokens[i++];
-            DateTime.TryParse(tokens[i++], out CreateDate);
-            IsActive = tokens[i++];
-            int.TryParse(tokens[i++], out UpdateCycleId);
-            RatingUrl = tokens[i++];
-            int.TryParse(tokens[i++], out RatingCount);
-            int.TryParse(tokens[i++], out Rating);
-            PropertyType = tokens[i++];
-            DateTime.TryParse(tokens[i++], out StatusChangeDate);
-            int.TryParse(tokens[i++], out ChangeScore);
-            PropertyCategory = tokens[i++];
-            PropertySubCategory = tokens[i++];
-            HotelInfoTranslation = tokens[i++];
-            */
         }
 
         // Methods
