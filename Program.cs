@@ -13,6 +13,7 @@ namespace GimmonixTest
     {
         public static void Main(string[] args)
         {
+
             DBConnection dbConn = DBConnection.GetInstance();
             dbConn.DBName = "gimmonixdb";
             dbConn.Password = "v614332K";
@@ -21,15 +22,17 @@ namespace GimmonixTest
             dbConn.Connect(dbConn.DBName, dbConn.Password);
             if (dbConn.IsConnected())
             {
-                string query = "SELECT * FROM " + tableName;
+                //string query = "SELECT * FROM " + tableName;
+                string query = "CHECK TABLE " + tableName;
                 MySqlCommand sqlCommand = new MySqlCommand(query, dbConn.Connection);
-                MySqlDataReader reader = sqlCommand.ExecuteReader();
-                while(reader.Read())
-                {
-                    string column1 = reader.GetString(0);
-                    string column2 = reader.GetString(1);
-                    Console.WriteLine(column1 + " | " + column2);
-                }
+                sqlCommand.ExecuteNonQuery();
+                //MySqlDataReader reader = sqlCommand.ExecuteReader();
+                //while(reader.Read())
+                //{
+                //    string column1 = reader.GetString(0);
+                //    string column2 = reader.GetString(1);
+                //    Console.WriteLine(column1 + " | " + column2);
+                //}
             }
 
             string inputPath = @"resources\hotels.csv";
