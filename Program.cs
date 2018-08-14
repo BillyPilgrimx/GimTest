@@ -13,9 +13,15 @@ namespace GimmonixTest
     {
         public static void Main(string[] args)
         {
-            /*
+            string serverName = "localhost";
+            string portNumber = "3306";
+            string serverPassword = "v614332K";
+            string userName = "root";
+            string dbName = "gimmonixdb";
+            string tableName = "data";
+
             string inputPath = @"resources\hotels.csv";
-            string outputPath = @"resources\hotelsNoDuplications.csv";
+            string outputPath = @"resources\hotelsOutput.csv";
             string headliner = string.Empty;
             StreamReader streamReader = new StreamReader(inputPath);
             StreamWriter streamWriter = new StreamWriter(outputPath);
@@ -37,26 +43,14 @@ namespace GimmonixTest
 
             Console.WriteLine("Number of hotels after MergeSort() and RemoveDuplicates(): {0}\n", hotelsSortedAndRemoved.Count);
             ReadHotelsAndCreateOutputFile(hotelsSortedAndRemoved, ref streamWriter, ref headliner);
-            */
-            string serverName = "localhost";
-            string portNumber = "3306";
-            string serverPassword = "v614332K";
-            string userName = "root";
-            string dbName = "gimmonixdb";
-            string tableName = "data";
-
+            
             DBConnection dbConn = DBConnection.GetInstance(serverName, serverPassword, portNumber, userName);
             dbConn.ConnectToServer();
             dbConn.CreateAndUseDatabase(dbName);
             dbConn.CreateTable(tableName);
-
-
-
-
-
+            dbConn.InsertHotels(hotelsOriginal, tableName);
 
             //dbConn.Disconnect();
-
 
             /*
             if (dbConn.IsConnected())

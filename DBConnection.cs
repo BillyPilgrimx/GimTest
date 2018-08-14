@@ -24,7 +24,8 @@ namespace GimmonixTest
         {
         }
 
-        public static DBConnection GetInstance(string _serverName, string _serverPassword, string _portNumber, string _userName) // singleton pattern
+        // Singleton
+        public static DBConnection GetInstance(string _serverName, string _serverPassword, string _portNumber, string _userName)
         {
             if (DBConnection.instance == null)
             {
@@ -80,7 +81,7 @@ namespace GimmonixTest
         {
             try
             {
-                Console.Write("Connecting to '{0}' server...", ServerName);
+                Console.Write("Connecting to '{0}' server... ", ServerName);
                 string connectionString = string.Format("server={0}; password={1}; port={2}; UID={3}; SslMode=none", ServerName, ServerPassword, PortNumber, UserName);
                 this.connection = new MySqlConnection(connectionString);
                 connection.Open();
@@ -90,13 +91,13 @@ namespace GimmonixTest
             }
             catch (Exception e)
             {
-                Console.WriteLine("Something went wrong during the server connection:");
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Something went wrong during the server connection: ");
+                Console.WriteLine(e.Message + "\n");
                 return false;
             }
         }
 
-        public bool IsConnected()
+        public bool IsConnectedToServer()
         {
             if (this.connection == null)
                 return false;
@@ -108,15 +109,15 @@ namespace GimmonixTest
         {
             try
             {
-                Console.Write("Disconnecting from '{0}' server...", ServerName);
+                Console.Write("Disconnecting from '{0}' server... ", ServerName);
                 this.connection.Close();
                 Console.WriteLine("Disconnected!\n");
                 return true;
             }
             catch (Exception e)
             {
-                Console.WriteLine("Something went wrong during the server disconnection:");
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Something went wrong during the server disconnection: ");
+                Console.WriteLine(e.Message + "\n");
                 return false;
             }
         }
@@ -125,7 +126,7 @@ namespace GimmonixTest
         {
             try
             {
-                Console.Write("Creating database '{0}'...", _dbName);
+                Console.Write("Creating database '{0}'... ", _dbName);
                 string createDatabaseCommand = string.Format("CREATE DATABASE {0};", _dbName);
 
                 if (instance != null)
@@ -137,21 +138,21 @@ namespace GimmonixTest
                     Console.WriteLine("Database created!\n");
 
                     connection.Close();
-                    Console.Write("Connecting to '{0}' database...", _dbName);
+                    Console.Write("Trying to use '{0}' database... ", _dbName);
                     string connectionString = string.Format("server={0}; password={1}; port={2}; UID={3}; database={4}; SslMode=none", ServerName, ServerPassword, PortNumber, UserName, _dbName);
                     this.connection = new MySqlConnection(connectionString);
                     connection.Open();
 
                     DBConnection.instance.DBName = _dbName;
-                    Console.WriteLine("Connected!\n");
+                    Console.WriteLine("Database in use!\n");
                     return true;
                 }
                 return false;
             }
             catch (Exception e)
             {
-                Console.WriteLine("Something went wrong during database creation:");
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Something went wrong during database creation: ");
+                Console.WriteLine(e.Message + "\n");
                 return false;
             }
         }
@@ -160,7 +161,7 @@ namespace GimmonixTest
         {
             try
             {
-                Console.Write("Creating '{0}' table...", _tableName);
+                Console.Write("Creating '{0}' table... ", _tableName);
 
                 string createTableCommand = string.Format("CREATE TABLE {0} (RowId varchar(50) NULL, SupplierId varchar(50) NULL, SupplierKey varchar(50) NULL, CountryCode varchar(50) NULL, " +
                     "State varchar(50) NULL, CityCode varchar(50) NULL, CityName varchar(50) NULL, NormalizedCityName varchar(50) NULL, DisplayName varchar(50) NULL, Address varchar(50) NULL, ZipCode varchar(50) NULL, " +
@@ -177,36 +178,29 @@ namespace GimmonixTest
             }
             catch (Exception e)
             {
-                Console.WriteLine("Something went wrong during database creation:");
-                Console.WriteLine(e.Message);
-                return false;
-            }
-        }
-
-        public bool CreateDataTable(string _tableName)
-        {
-            try
-            {
-                string query = "";
-
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Something went wrong during table creation:");
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Something went wrong during database creation: ");
+                Console.WriteLine(e.Message + "\n");
                 return false;
             }
         }
 
         public bool InsertHotels(List<Hotel> hotelList, string _tableName)
         {
-            MySqlDataReader dataReader;
             try
             {
+                Console.Write("Inserting hotels to '{0}' table... ", _tableName);
+
+                MySqlDataReader dataReader;
+                MySqlCommand sqlCommand;
+                string preQueryCommand = "SET QUOTED_IDENTIFIER OFF";
+                string postQueryCommand = "SET QUOTED_IDENTIFIER ON";
+
+                //sqlCommand = new MySqlCommand(preQueryCommand, this.Connection);
+                //dataReader = sqlCommand.ExecuteReader();
                 foreach (Hotel hotel in hotelList)
                 {
+                    Hotel tmpHotel = hotel.Clone
+
                     string query = string.Format("INSERT INTO {0} VALUES ('{1}', '{2}', '{3}', '{4}', '{5}'," +
                         " '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}', '{17}', '{18}', '{19}', '{20}'," +
                         " '{21}', '{22}', '{23}', '{24}', '{25}', '{26}', '{27}', '{28}', '{29}', '{30}', '{31}', '{32}')", _tableName,
@@ -216,17 +210,20 @@ namespace GimmonixTest
                         hotel.CreateDate, hotel.IsActive, hotel.UpdateCycleId, hotel.RatingUrl, hotel.RatingCount, hotel.Rating,
                         hotel.PropertyType, hotel.StatusChangeDate, hotel.ChangeScore, hotel.PropertyCategory, hotel.PropertySubCategory, hotel.HotelInfoTranslation);
 
-                    MySqlCommand sqlCommand = new MySqlCommand(query, this.Connection);
+                    sqlCommand = new MySqlCommand(query, this.Connection);
                     dataReader = sqlCommand.ExecuteReader();
                     dataReader.Close();
                 }
-                Console.WriteLine("Successfully finished inserting {0} hotels!\n", hotelList.Count);
+                //sqlCommand = new MySqlCommand(postQueryCommand, this.Connection);
+                //dataReader = sqlCommand.ExecuteReader();
+
+                Console.WriteLine("Successfully finished inserting {0} hotels to '{1}' table !\n", hotelList.Count, _tableName);
                 return true;
             }
             catch (Exception e)
             {
-                Console.WriteLine("Something went wrong during hotel insertion:");
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Something went wrong during hotel insertion: ");
+                Console.WriteLine(e.Message + "\n");
                 return false;
             }
         }

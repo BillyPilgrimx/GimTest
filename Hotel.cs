@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GimmonixTest
 {
-    public class Hotel
+    public class Hotel : ICloneable
     {
         // Fields
         public string RowId { get; set; }
@@ -69,6 +69,11 @@ namespace GimmonixTest
                 + "\nRatingUrl = " + RatingUrl + "\nRatingCount = " + RatingCount + "\nRating = " + Rating + "\nPropertyType = " + PropertyType
                 + "\nStatusChangeDate = " + StatusChangeDate + "\nChangeScore = " + ChangeScore + "\nPropertyCategory = " + PropertyCategory
                 + "\nPropertySubCategory = " + PropertySubCategory + "\nHotelInfoTranslation = " + HotelInfoTranslation + "\n";
+        }
+
+        public Hotel Clone()
+        {
+            throw new NotImplementedException();
         }
     }
 }
