@@ -38,12 +38,12 @@ namespace GimmonixTest
             Console.WriteLine("Number of hotels before MergeSort(): {0}\n", hotelsOriginal.Count);
             Console.WriteLine("Headliner: {0}\n", headliner);
 
-            hotelsSorted = MergeSort(hotelsOriginal);
-            hotelsSortedAndRemoved = RemoveDuplicates(hotelsSorted);
+            hotelsSorted = MergeSort(hotelsOriginal, 0);
+            //hotelsSortedAndRemoved = RemoveDuplicates(hotelsSorted);
 
-            Console.WriteLine("Number of hotels after MergeSort() and RemoveDuplicates(): {0}\n", hotelsSortedAndRemoved.Count);
-            ReadHotelsAndCreateOutputFile(hotelsSortedAndRemoved, ref streamWriter, ref headliner);
-            
+            Console.WriteLine("Number of hotels after MergeSort() and RemoveDuplicates(): {0}\n", hotelsSorted.Count);
+            ReadHotelsAndCreateOutputFile(hotelsSorted, ref streamWriter, ref headliner);
+
             /*
             DBConnection dbConn = DBConnection.GetInstance(serverName, serverPassword, portNumber, userName);
             dbConn.ConnectToServer();
@@ -84,7 +84,7 @@ namespace GimmonixTest
             }
         }
 
-        public static List<Hotel> MergeSort(List<Hotel> inputList)
+        public static List<Hotel> MergeSort(List<Hotel> inputList, int propertyIndexNumberToSortBy)
         {
             // stop condition
             if (inputList.Count <= 1)
@@ -102,12 +102,12 @@ namespace GimmonixTest
                 rightList.Add(inputList.ElementAt(i));
 
             // recursive invocation on the two side + merging
-            leftList = MergeSort(leftList);
-            rightList = MergeSort(rightList);
-            return Merge(leftList, rightList);
+            leftList = MergeSort(leftList, propertyIndexNumberToSortBy);
+            rightList = MergeSort(rightList, propertyIndexNumberToSortBy);
+            return Merge(leftList, rightList, propertyIndexNumberToSortBy);
         }
 
-        public static List<Hotel> Merge(List<Hotel> leftInputList, List<Hotel> rightInputList)
+        public static List<Hotel> Merge(List<Hotel> leftInputList, List<Hotel> rightInputList, int propertyIndexNumberToSortBy)
         {
             List<Hotel> outputList = new List<Hotel>();
             while (0 < leftInputList.Count || 0 < rightInputList.Count)
@@ -115,15 +115,36 @@ namespace GimmonixTest
                 // in case the two input lists have elements
                 if (0 < leftInputList.Count && 0 < rightInputList.Count)
                 {
-                    if (int.Parse(leftInputList.First().RowId) <= int.Parse(rightInputList.First().RowId))
+                    //if (int.Parse(leftInputList.First().RowId) <= int.Parse(rightInputList.First().RowId))
+                    int leftNum, RightNum;
+                    // if both can be parsed
+                    if (int.TryParse(leftInputList.First().GetSomeProperty(propertyIndexNumberToSortBy), out leftNum) && int.TryParse(rightInputList.First().GetSomeProperty(propertyIndexNumberToSortBy), out RightNum))
                     {
-                        outputList.Add(leftInputList.First());
-                        leftInputList.Remove(leftInputList.First());
+                        if (leftNum < RightNum)
+                        {
+                            {
+                                outputList.Add(leftInputList.First());
+                                leftInputList.Remove(leftInputList.First());
+                            }
+                        }
+                        else
+                        {
+                            outputList.Add(rightInputList.First());
+                            rightInputList.Remove(rightInputList.First());
+                        }
                     }
-                    else
+                    else // can't parse both
                     {
-                        outputList.Add(rightInputList.First());
-                        rightInputList.Remove(rightInputList.First());
+                        if (leftInputList.First().GetSomeProperty(propertyIndexNumberToSortBy).CompareTo(rightInputList.First().GetSomeProperty(propertyIndexNumberToSortBy)) < 0)
+                        {
+                            outputList.Add(leftInputList.First());
+                            leftInputList.Remove(leftInputList.First());
+                        }
+                        else
+                        {
+                            outputList.Add(rightInputList.First());
+                            rightInputList.Remove(rightInputList.First());
+                        }
                     }
                 }
                 // incase the rightInputList empty and leftInputList is not

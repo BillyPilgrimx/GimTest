@@ -158,11 +158,6 @@ namespace GimmonixTest
             }
         }
 
-        public bool DropDatabase(string _dbName)
-        {
-            return false;
-        }
-
         public bool CreateTable(string _tableName)
         {
             try
