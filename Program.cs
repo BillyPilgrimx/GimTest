@@ -44,33 +44,13 @@ namespace GimmonixTest
             Console.WriteLine("Number of hotels after MergeSort() and RemoveDuplicates(): {0}\n", hotelsSortedAndRemoved.Count);
             ReadHotelsAndCreateOutputFile(hotelsSortedAndRemoved, ref streamWriter, ref headliner);
             
+            /*
             DBConnection dbConn = DBConnection.GetInstance(serverName, serverPassword, portNumber, userName);
             dbConn.ConnectToServer();
             dbConn.CreateAndUseDatabase(dbName);
             dbConn.CreateTable(tableName);
             dbConn.InsertHotels(hotelsOriginal, tableName);
-
-            //dbConn.Disconnect();
-
-            /*
-            if (dbConn.IsConnected())
-            {
-                string query = "SELECT * FROM " + tableName;
-                //string query = "CHECK TABLE " + tableName;
-                MySqlCommand sqlCommand = new MySqlCommand(query, dbConn.Connection);
-                MySqlDataReader reader = sqlCommand.ExecuteReader();
-                while (reader.Read())
-                {
-                    string column1 = reader.GetString(0);
-                    string column2 = reader.GetString(1);
-                    Console.WriteLine(column1 + " | " + column2);
-                }
-                reader.Close();
-            }
             */
-
-            //if (dbConn.IsConnected())
-            //    dbConn.InsertHotels(hotelsSortedAndRemoved, tableName);
 
             Console.WriteLine("End of Program!\n");
         }

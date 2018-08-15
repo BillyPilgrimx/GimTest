@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -127,7 +128,7 @@ namespace GimmonixTest
             try
             {
                 Console.Write("Creating database '{0}'... ", _dbName);
-                string createDatabaseCommand = string.Format("CREATE DATABASE {0};", _dbName);
+                string createDatabaseCommand = string.Format("CREATE DATABASE IF NOT EXISTS {0};", _dbName);
 
                 if (instance != null)
                 {
@@ -157,17 +158,22 @@ namespace GimmonixTest
             }
         }
 
+        public bool DropDatabase(string _dbName)
+        {
+            return false;
+        }
+
         public bool CreateTable(string _tableName)
         {
             try
             {
                 Console.Write("Creating '{0}' table... ", _tableName);
 
-                string createTableCommand = string.Format("CREATE TABLE {0} (RowId varchar(50) NULL, SupplierId varchar(50) NULL, SupplierKey varchar(50) NULL, CountryCode varchar(50) NULL, " +
-                    "State varchar(50) NULL, CityCode varchar(50) NULL, CityName varchar(50) NULL, NormalizedCityName varchar(50) NULL, DisplayName varchar(50) NULL, Address varchar(50) NULL, ZipCode varchar(50) NULL, " +
-                    "StarRating varchar(50) NULL, ChainCode varchar(50) NULL, Lat varchar(50) NULL, Lng varchar(50) NULL, RoomCount varchar(50) NULL, Phone varchar(50) NULL, Fax varchar(50) NULL, Email varchar(50) NULL, " +
-                    "WebSite varchar(50) NULL, CreateDate varchar(50) NULL, IsActive varchar(50) NULL, UpdateCycleId varchar(50) NULL, RatingUrl varchar(50) NULL, RatingCount varchar(50) NULL, Rating varchar(50) NULL, " +
-                    "PropertyType varchar(50) NULL, StatusChangeDate varchar(50) NULL, ChangeScore varchar(50) NULL, PropertyCategory varchar(50) NULL, PropertySubCategory varchar(50) NULL, HotelInfoTranslation varchar(50) NULL)", _tableName);
+                string createTableCommand = string.Format("CREATE TABLE IF NOT EXISTS {0} (RowId varchar(255) NULL, SupplierId varchar(255) NULL, SupplierKey varchar(255) NULL, CountryCode varchar(255) NULL, " +
+                    "State varchar(255) NULL, CityCode varchar(255) NULL, CityName varchar(255) NULL, NormalizedCityName varchar(255) NULL, DisplayName varchar(255) NULL, Address varchar(255) NULL, ZipCode varchar(255) NULL, " +
+                    "StarRating varchar(255) NULL, ChainCode varchar(255) NULL, Lat varchar(255) NULL, Lng varchar(255) NULL, RoomCount varchar(255) NULL, Phone varchar(255) NULL, Fax varchar(255) NULL, Email varchar(255) NULL, " +
+                    "WebSite varchar(255) NULL, CreateDate varchar(255) NULL, IsActive varchar(255) NULL, UpdateCycleId varchar(255) NULL, RatingUrl varchar(255) NULL, RatingCount varchar(255) NULL, Rating varchar(255) NULL, " +
+                    "PropertyType varchar(255) NULL, StatusChangeDate varchar(255) NULL, ChangeScore varchar(255) NULL, PropertyCategory varchar(255) NULL, PropertySubCategory varchar(255) NULL, HotelInfoTranslation varchar(255) NULL)", _tableName);
 
                 MySqlCommand sqlCommand = this.connection.CreateCommand();
                 sqlCommand.CommandText = createTableCommand;
@@ -188,20 +194,15 @@ namespace GimmonixTest
         {
             try
             {
-                Console.Write("Inserting hotels to '{0}' table... ", _tableName);
-
                 MySqlDataReader dataReader;
                 MySqlCommand sqlCommand;
-                string preQueryCommand = "SET QUOTED_IDENTIFIER OFF";
-                string postQueryCommand = "SET QUOTED_IDENTIFIER ON";
+                string query = string.Empty;
+                int counter = 0;
 
-                //sqlCommand = new MySqlCommand(preQueryCommand, this.Connection);
-                //dataReader = sqlCommand.ExecuteReader();
+                Console.Write("Inserting {0} hotels to '{1}' table...\n", hotelList.Count,_tableName);
                 foreach (Hotel hotel in hotelList)
                 {
-                    Hotel tmpHotel = hotel.Clone
-
-                    string query = string.Format("INSERT INTO {0} VALUES ('{1}', '{2}', '{3}', '{4}', '{5}'," +
+                    query = string.Format("INSERT INTO {0} VALUES ('{1}', '{2}', '{3}', '{4}', '{5}'," +
                         " '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}', '{17}', '{18}', '{19}', '{20}'," +
                         " '{21}', '{22}', '{23}', '{24}', '{25}', '{26}', '{27}', '{28}', '{29}', '{30}', '{31}', '{32}')", _tableName,
                         hotel.RowId, hotel.SupplierId, hotel.SupplierKey, hotel.CountryCode, hotel.State, hotel.CityCode,
@@ -213,10 +214,10 @@ namespace GimmonixTest
                     sqlCommand = new MySqlCommand(query, this.Connection);
                     dataReader = sqlCommand.ExecuteReader();
                     dataReader.Close();
-                }
-                //sqlCommand = new MySqlCommand(postQueryCommand, this.Connection);
-                //dataReader = sqlCommand.ExecuteReader();
 
+                    counter++;
+                    Console.WriteLine("{0} hotels inserted out of {1}", counter, hotelList.Count);
+                }
                 Console.WriteLine("Successfully finished inserting {0} hotels to '{1}' table !\n", hotelList.Count, _tableName);
                 return true;
             }

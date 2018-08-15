@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GimmonixTest
 {
-    public class Hotel : ICloneable
+    public class Hotel
     {
         // Fields
         public string RowId { get; set; }
@@ -43,6 +43,10 @@ namespace GimmonixTest
         public string HotelInfoTranslation { get; set; }
 
         // CTORs
+        public Hotel()
+        {
+        }
+
         public Hotel(string line)
         {
             char[] seperatorArray = { ',' };
@@ -50,12 +54,38 @@ namespace GimmonixTest
             string[] tokens = line.Split(seperatorArray, maxTokensReturned);
             int i = 0;
 
-            RowId = tokens[i++]; SupplierId = tokens[i++]; SupplierKey = tokens[i++]; CountryCode = tokens[i++]; State = tokens[i++];
-            CityCode = tokens[i++]; CityName = tokens[i++]; NormalizedCityName = tokens[i++]; DisplayName = tokens[i++]; Address = tokens[i++];
-            ZipCode = tokens[i++]; StarRating = tokens[i++]; ChainCode = tokens[i++]; Lat = tokens[i++]; Lng = tokens[i++]; RoomCount = tokens[i++];
-            Phone = tokens[i++]; Fax = tokens[i++]; Email = tokens[i++]; WebSite = tokens[i++]; CreateDate = tokens[i++]; IsActive = tokens[i++];
-            UpdateCycleId = tokens[i++]; RatingUrl = tokens[i++]; RatingCount = tokens[i++]; Rating = tokens[i++]; PropertyType = tokens[i++];
-            StatusChangeDate = tokens[i++]; ChangeScore = tokens[i++]; PropertyCategory = tokens[i++]; PropertySubCategory = tokens[i++]; HotelInfoTranslation = tokens[i++];
+            RowId = tokens[i++].Replace("'", "''").Replace(@"\", @"\\");
+            SupplierId = tokens[i++].Replace("'", "''").Replace(@"\", @"\\");
+            SupplierKey = tokens[i++].Replace("'", "''").Replace(@"\", @"\\");
+            CountryCode = tokens[i++].Replace("'", "''").Replace(@"\", @"\\");
+            State = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            CityCode = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            CityName = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            NormalizedCityName = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            DisplayName = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            Address = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            ZipCode = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            StarRating = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            ChainCode = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            Lat = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            Lng = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            RoomCount = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            Phone = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            Fax = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            Email = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            WebSite = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            CreateDate = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            IsActive = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            UpdateCycleId = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            RatingUrl = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            RatingCount = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            Rating = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            PropertyType = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            StatusChangeDate = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            ChangeScore = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            PropertyCategory = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            PropertySubCategory = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
+            HotelInfoTranslation = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); ;
         }
 
         // Methods
@@ -69,11 +99,6 @@ namespace GimmonixTest
                 + "\nRatingUrl = " + RatingUrl + "\nRatingCount = " + RatingCount + "\nRating = " + Rating + "\nPropertyType = " + PropertyType
                 + "\nStatusChangeDate = " + StatusChangeDate + "\nChangeScore = " + ChangeScore + "\nPropertyCategory = " + PropertyCategory
                 + "\nPropertySubCategory = " + PropertySubCategory + "\nHotelInfoTranslation = " + HotelInfoTranslation + "\n";
-        }
-
-        public Hotel Clone()
-        {
-            throw new NotImplementedException();
         }
     }
 }
