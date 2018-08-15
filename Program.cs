@@ -48,6 +48,8 @@ namespace GimmonixTest
             hotelsSortedAndRemoved = SearchElements(hotelsSorted, 0, hotelsSorted.Count(), "Tel Aviv", 7);
             ReadHotelsAndCreateOutputFile(hotelsSortedAndRemoved, ref streamWriter2, ref headliner);
 
+            SortAndSearch(hotelsSortedAndRemoved);
+
             //hotelsSortedAndRemoved = RemoveDuplicates(hotelsSorted);
             /*
             DBConnection dbConn = DBConnection.GetInstance(serverName, serverPassword, portNumber, userName);
@@ -86,6 +88,21 @@ namespace GimmonixTest
 
                 streamWriter.Flush();
             }
+        }
+
+        public static List<Hotel> SortAndSearch(List<Hotel> inputList)
+        {
+            Hotel tmpHotel = new Hotel();
+            Console.WriteLine("By which criteria whould you like to make the search?\n=============================================");
+            for (int i = 0; i < tmpHotel.GetType().GetProperties().Count(); i++)
+            {
+                Console.WriteLine("{0}. {1}", i, tmpHotel.GetType().GetProperties().ElementAt(i).ToString());
+            }
+
+            
+
+
+            return null;
         }
 
         public static List<Hotel> MergeSort(List<Hotel> inputList, int propertyIndexNumberToSortBy)
@@ -205,10 +222,9 @@ namespace GimmonixTest
                     while (inputList.ElementAt(placeholder).GetSomeProperty(propertyIndexNumberToSearchBy).Equals(target))
                     {
                         outputList.Add(inputList.ElementAt(placeholder));
-                        Console.WriteLine("Added {0} hotels", i++);
+                        Console.WriteLine("Added {0} requested hotels", i++);
                         placeholder++;
                     }
-
                     return outputList;
                 }
 
