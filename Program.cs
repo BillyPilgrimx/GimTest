@@ -30,27 +30,20 @@ namespace GimmonixTest
             StreamWriter streamWriter2 = new StreamWriter(outputPath2);
 
             Console.WriteLine("Hello there!\n");
-            Console.Write("Loading input file... ");
+            Console.Write("Loading: {0} input file... ", inputPath);
             string text = streamReader.ReadToEnd();
             Console.WriteLine("File loaded!\n");
 
             // reading the whole text and breaking it into lines + creating a list of Hotel objects (a Hotel for each line)
             string[] lines = text.Split('\n');
             List<Hotel> hotelsOriginal = new List<Hotel>();
-            List<Hotel> hotelsSorted;
-            List<Hotel> hotelsSortedAndRemoved;
+            List<Hotel> hotelsOutput = new List<Hotel>();
+            List<int> parameterList = new List<int>();
 
             ReadLinesAndCreateHotels(lines, ref hotelsOriginal, ref headliner);
+            hotelsOutput = Menu_SortAndSearch(hotelsOriginal);
+            ReadHotelsListAndCreateOutputFile(hotelsOutput, ref streamWriter1, ref headliner);
 
-            hotelsSorted = MergeSort(hotelsOriginal, 6);
-            ReadHotelsAndCreateOutputFile(hotelsSorted, ref streamWriter1, ref headliner);
-
-            hotelsSortedAndRemoved = SearchElements(hotelsSorted, 0, hotelsSorted.Count(), "Tel Aviv", 7);
-            ReadHotelsAndCreateOutputFile(hotelsSortedAndRemoved, ref streamWriter2, ref headliner);
-
-            SortAndSearch(hotelsSortedAndRemoved);
-
-            //hotelsSortedAndRemoved = RemoveDuplicates(hotelsSorted);
             /*
             DBConnection dbConn = DBConnection.GetInstance(serverName, serverPassword, portNumber, userName);
             dbConn.ConnectToServer();
@@ -58,7 +51,8 @@ namespace GimmonixTest
             dbConn.CreateTable(tableName);
             dbConn.InsertHotels(hotelsOriginal, tableName);
             */
-            Console.WriteLine("End of Program!\n");
+
+            Console.WriteLine("\nEnd of Program!\n");
         }
 
         public static void ReadLinesAndCreateHotels(string[] lines, ref List<Hotel> inputHotels, ref string headliner)
@@ -72,7 +66,7 @@ namespace GimmonixTest
             }
         }
 
-        public static void ReadHotelsAndCreateOutputFile(List<Hotel> inputHotels, ref StreamWriter streamWriter, ref string headliner)
+        public static void ReadHotelsListAndCreateOutputFile(List<Hotel> inputHotels, ref StreamWriter streamWriter, ref string headliner)
         {
             for (int i = 0; i < inputHotels.Count; i++)
             {
@@ -90,19 +84,77 @@ namespace GimmonixTest
             }
         }
 
-        public static List<Hotel> SortAndSearch(List<Hotel> inputList)
+        public static List<Hotel> Menu_SortAndSearch(List<Hotel> inputList)
         {
             Hotel tmpHotel = new Hotel();
-            Console.WriteLine("By which criteria whould you like to make the search?\n=============================================");
+            List<KeyValuePair<int, string>> pairs = new List<KeyValuePair<int, string>>();
+            string choiceStr;
+            char innerChoiceChar;
+            int choiceNum;
+
+            // Menu - flow control
+            Console.WriteLine("Please enter a parameter to search with (key) and a target (value):\n");
+            Console.WriteLine("By which parameter would you like to make the search?\n=====================================================");
             for (int i = 0; i < tmpHotel.GetType().GetProperties().Count(); i++)
             {
-                Console.WriteLine("{0}. {1}", i, tmpHotel.GetType().GetProperties().ElementAt(i).ToString());
+                if (i < 10)
+                {
+                    Console.Write("{0}. {1, -26}", i, tmpHotel.GetType().GetProperties().ElementAt(i).Name);
+                    if ((i + 1) % 2 == 0 && i != 0)
+                        Console.WriteLine();
+                }
+                else
+                {
+                    Console.Write("{0}. {1, -25}", i, tmpHotel.GetType().GetProperties().ElementAt(i).Name);
+                    if ((i + 1) % 2 == 0 && i != 0)
+                        Console.WriteLine();
+                }
             }
 
-            
+            do
+            {
+                do
+                {
+                    do
+                    {
+                        Console.Write("\nYour choice? (0-31): ");
+                        choiceStr = Console.ReadLine();
 
+                        if (!int.TryParse(choiceStr, out choiceNum))
+                            Console.WriteLine("Invalid input, please try again...");
 
-            return null;
+                    } while (!int.TryParse(choiceStr, out choiceNum));
+
+                    if (choiceNum < 0 || 32 < choiceNum)
+                        Console.WriteLine("Invalid input, please try again...");
+
+                } while (choiceNum < 0 || 32 < choiceNum);
+
+                Console.Write("\nEnter the target (value) to search for: ");
+                choiceStr = Console.ReadLine();
+                pairs.Add(new KeyValuePair<int, string>(choiceNum, choiceStr));
+
+                do
+                {
+                    Console.Write("Would you like to add another parameter to the search? (y/n): ");
+                    innerChoiceChar = (char)Console.Read();
+                    Console.ReadLine();
+
+                    if (innerChoiceChar != 'y' && innerChoiceChar != 'n')
+                        Console.WriteLine("Invalid input, please try again...");
+
+                } while (innerChoiceChar != 'y' && innerChoiceChar != 'n');
+
+            } while (innerChoiceChar != 'n');
+
+            List<Hotel> outputList = new List<Hotel>(inputList);
+            foreach(KeyValuePair<int, string> pair in pairs)
+            {
+                outputList = MergeSort(outputList, pair.Key);
+                outputList = SearchElements(outputList, 0, outputList.Count(), pair.Value, pair.Key);
+            }
+
+            return outputList;
         }
 
         public static List<Hotel> MergeSort(List<Hotel> inputList, int propertyIndexNumberToSortBy)
@@ -217,14 +269,15 @@ namespace GimmonixTest
                         placeholder--;
                     }
 
-                    int i = 0;
+                    int counter = 0;
                     placeholder++;
                     while (inputList.ElementAt(placeholder).GetSomeProperty(propertyIndexNumberToSearchBy).Equals(target))
                     {
                         outputList.Add(inputList.ElementAt(placeholder));
-                        Console.WriteLine("Added {0} requested hotels", i++);
                         placeholder++;
+                        counter++;
                     }
+                    Console.WriteLine("{0} requested hotels have been added!\n", counter);
                     return outputList;
                 }
 
