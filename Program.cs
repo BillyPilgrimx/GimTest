@@ -23,11 +23,16 @@ namespace GimmonixTest
             string inputPath = @"resources\hotels.csv";
             string outputPath = @"resources\hotelsOutput.csv";
             string headliner = string.Empty;
+            
             StreamReader streamReader = new StreamReader(inputPath);
             StreamWriter streamWriter = new StreamWriter(outputPath);
 
-            // reading the whole text and breaking it into lines + creating a list of Hotel objects (a Hotel for each line)
+            Console.WriteLine("Hello there!\n");
+            Console.Write("Loading input file... ");
             string text = streamReader.ReadToEnd();
+            Console.WriteLine("File loaded!\n");
+
+            // reading the whole text and breaking it into lines + creating a list of Hotel objects (a Hotel for each line)
             string[] lines = text.Split('\n');
             List<Hotel> hotelsOriginal = new List<Hotel>();
             List<Hotel> hotelsSorted;
@@ -38,7 +43,7 @@ namespace GimmonixTest
             Console.WriteLine("Number of hotels before MergeSort(): {0}\n", hotelsOriginal.Count);
             Console.WriteLine("Headliner: {0}\n", headliner);
 
-            hotelsSorted = MergeSort(hotelsOriginal, 0);
+            hotelsSorted = MergeSort(hotelsOriginal, 7);
             //hotelsSortedAndRemoved = RemoveDuplicates(hotelsSorted);
 
             Console.WriteLine("Number of hotels after MergeSort() and RemoveDuplicates(): {0}\n", hotelsSorted.Count);
@@ -116,9 +121,27 @@ namespace GimmonixTest
                 if (0 < leftInputList.Count && 0 < rightInputList.Count)
                 {
                     //if (int.Parse(leftInputList.First().RowId) <= int.Parse(rightInputList.First().RowId))
-                    int leftNum, RightNum;
-                    // if both can be parsed
-                    if (int.TryParse(leftInputList.First().GetSomeProperty(propertyIndexNumberToSortBy), out leftNum) && int.TryParse(rightInputList.First().GetSomeProperty(propertyIndexNumberToSortBy), out RightNum))
+                    DateTime leftDate, rightDate;
+                    double leftNum, RightNum;
+
+                    // if both can be parsed to DateTime
+                    if (DateTime.TryParse(leftInputList.First().GetSomeProperty(propertyIndexNumberToSortBy), out leftDate) && DateTime.TryParse(rightInputList.First().GetSomeProperty(propertyIndexNumberToSortBy), out rightDate))
+                    {
+                        if (leftDate.CompareTo(rightDate) < 0)
+                        {
+                            {
+                                outputList.Add(leftInputList.First());
+                                leftInputList.Remove(leftInputList.First());
+                            }
+                        }
+                        else
+                        {
+                            outputList.Add(rightInputList.First());
+                            rightInputList.Remove(rightInputList.First());
+                        }
+                    }
+                    // if both can be parsed to double
+                    else if (double.TryParse(leftInputList.First().GetSomeProperty(propertyIndexNumberToSortBy), out leftNum) && double.TryParse(rightInputList.First().GetSomeProperty(propertyIndexNumberToSortBy), out RightNum))
                     {
                         if (leftNum < RightNum)
                         {

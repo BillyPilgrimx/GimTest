@@ -56,7 +56,7 @@ namespace GimmonixTest
 
             for (int j = 0; j < tokens.Count(); j++)
             {
-                char[] seperatorArray2 = { '"', '\'', '\\' };
+                char[] seperatorArray2 = { '"', '\'', '\\', '`' };
                 string[] innerTokens = tokens[j].Split(seperatorArray2);
 
                 tokens[j] = string.Empty;
