@@ -21,11 +21,13 @@ namespace GimmonixTest
             string tableName = "data";
 
             string inputPath = @"resources\hotels.csv";
-            string outputPath = @"resources\hotelsOutput.csv";
+            string outputPath1 = @"resources\hotelsOutput1.csv";
+            string outputPath2 = @"resources\hotelsOutput2.csv";
             string headliner = string.Empty;
-            
+
             StreamReader streamReader = new StreamReader(inputPath);
-            StreamWriter streamWriter = new StreamWriter(outputPath);
+            StreamWriter streamWriter1 = new StreamWriter(outputPath1);
+            StreamWriter streamWriter2 = new StreamWriter(outputPath2);
 
             Console.WriteLine("Hello there!\n");
             Console.Write("Loading input file... ");
@@ -40,15 +42,13 @@ namespace GimmonixTest
 
             ReadLinesAndCreateHotels(lines, ref hotelsOriginal, ref headliner);
 
-            Console.WriteLine("Number of hotels before MergeSort(): {0}\n", hotelsOriginal.Count);
-            Console.WriteLine("Headliner: {0}\n", headliner);
+            hotelsSorted = MergeSort(hotelsOriginal, 6);
+            ReadHotelsAndCreateOutputFile(hotelsSorted, ref streamWriter1, ref headliner);
 
-            hotelsSorted = MergeSort(hotelsOriginal, 7);
+            hotelsSortedAndRemoved = SearchElements(hotelsSorted, 0, hotelsSorted.Count(), "Tel Aviv", 7);
+            ReadHotelsAndCreateOutputFile(hotelsSortedAndRemoved, ref streamWriter2, ref headliner);
+
             //hotelsSortedAndRemoved = RemoveDuplicates(hotelsSorted);
-
-            Console.WriteLine("Number of hotels after MergeSort() and RemoveDuplicates(): {0}\n", hotelsSorted.Count);
-            ReadHotelsAndCreateOutputFile(hotelsSorted, ref streamWriter, ref headliner);
-
             /*
             DBConnection dbConn = DBConnection.GetInstance(serverName, serverPassword, portNumber, userName);
             dbConn.ConnectToServer();
@@ -56,7 +56,6 @@ namespace GimmonixTest
             dbConn.CreateTable(tableName);
             dbConn.InsertHotels(hotelsOriginal, tableName);
             */
-
             Console.WriteLine("End of Program!\n");
         }
 
@@ -120,7 +119,6 @@ namespace GimmonixTest
                 // in case the two input lists have elements
                 if (0 < leftInputList.Count && 0 < rightInputList.Count)
                 {
-                    //if (int.Parse(leftInputList.First().RowId) <= int.Parse(rightInputList.First().RowId))
                     DateTime leftDate, rightDate;
                     double leftNum, RightNum;
 
@@ -184,6 +182,47 @@ namespace GimmonixTest
                 }
             }
             return outputList;
+        }
+
+        public static List<Hotel> SearchElements(List<Hotel> inputList, int leftBoundry, int rightBoundry, string target, int propertyIndexNumberToSearchBy)
+        {
+            if (leftBoundry <= rightBoundry)
+            {
+                int middle = leftBoundry + ((rightBoundry - leftBoundry) / 2);
+
+                // in case we found on of the targeted objects
+                if (inputList.ElementAt(middle).GetSomeProperty(propertyIndexNumberToSearchBy).Equals(target))
+                {
+                    List<Hotel> outputList = new List<Hotel>();
+                    int placeholder = middle;
+                    while (inputList.ElementAt(placeholder).GetSomeProperty(propertyIndexNumberToSearchBy).Equals(target))
+                    {
+                        placeholder--;
+                    }
+
+                    int i = 0;
+                    placeholder++;
+                    while (inputList.ElementAt(placeholder).GetSomeProperty(propertyIndexNumberToSearchBy).Equals(target))
+                    {
+                        outputList.Add(inputList.ElementAt(placeholder));
+                        Console.WriteLine("Added {0} hotels", i++);
+                        placeholder++;
+                    }
+
+                    return outputList;
+                }
+
+                // in case the target located above
+                if (inputList.ElementAt(middle).GetSomeProperty(propertyIndexNumberToSearchBy).CompareTo(target) < 0)
+                {
+                    return SearchElements(inputList, middle + 1, rightBoundry, target, propertyIndexNumberToSearchBy);
+                }
+
+                // in case the target located below
+                return SearchElements(inputList, leftBoundry, middle - 1, target, propertyIndexNumberToSearchBy);
+            }
+
+            return null;
         }
 
         public static List<Hotel> RemoveDuplicates(List<Hotel> inputList)
