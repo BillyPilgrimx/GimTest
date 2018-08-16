@@ -21,8 +21,8 @@ namespace GimmonixTest
             string tableName = "data";
 
             string inputPath = @"resources\hotels.csv";
-            string outputPath1 = @"resources\hotelsOutput1.csv";
-            string outputPath2 = @"resources\hotelsOutput2.csv";
+            string outputPath1 = @"resources\hotelsSorted.csv";
+            string outputPath2 = @"resources\hotelsSortedAndFound.csv";
             string headliner = string.Empty;
 
             StreamReader streamReader = new StreamReader(inputPath);
@@ -41,18 +41,18 @@ namespace GimmonixTest
             List<int> parameterList = new List<int>();
 
             ReadLinesAndCreateHotels(lines, ref hotelsOriginal, ref headliner);
-            hotelsOutput = Menu_SortAndSearch(hotelsOriginal);
-            ReadHotelsListAndCreateOutputFile(hotelsOutput, ref streamWriter1, ref headliner);
+            hotelsOutput = Menu_SortAndSearch(hotelsOriginal, ref streamWriter1, ref headliner);
 
-            /*
+            if (hotelsOutput.Any() && hotelsOutput != null)
+                ReadHotelsListAndCreateOutputFile(hotelsOutput, ref streamWriter2, ref headliner);
+
             DBConnection dbConn = DBConnection.GetInstance(serverName, serverPassword, portNumber, userName);
             dbConn.ConnectToServer();
             dbConn.CreateAndUseDatabase(dbName);
             dbConn.CreateTable(tableName);
             dbConn.InsertHotels(hotelsOriginal, tableName);
-            */
 
-            Console.WriteLine("\nEnd of Program!\n");
+            Console.WriteLine("End of Program!\n");
         }
 
         public static void ReadLinesAndCreateHotels(string[] lines, ref List<Hotel> inputHotels, ref string headliner)
@@ -84,7 +84,7 @@ namespace GimmonixTest
             }
         }
 
-        public static List<Hotel> Menu_SortAndSearch(List<Hotel> inputList)
+        public static List<Hotel> Menu_SortAndSearch(List<Hotel> inputList, ref StreamWriter streamWriter, ref string headliner)
         {
             Hotel tmpHotel = new Hotel();
             List<KeyValuePair<int, string>> pairs = new List<KeyValuePair<int, string>>();
@@ -146,12 +146,34 @@ namespace GimmonixTest
                 } while (innerChoiceChar != 'y' && innerChoiceChar != 'n');
 
             } while (innerChoiceChar != 'n');
+            Console.WriteLine("***************************************************************");
 
+            // Sorting and searching
             List<Hotel> outputList = new List<Hotel>(inputList);
-            foreach(KeyValuePair<int, string> pair in pairs)
+            int counter = 0;
+            bool flag = false;
+
+            foreach (KeyValuePair<int, string> pair in pairs)
             {
                 outputList = MergeSort(outputList, pair.Key);
-                outputList = SearchElements(outputList, 0, outputList.Count(), pair.Value, pair.Key);
+                ReadHotelsListAndCreateOutputFile(outputList, ref streamWriter, ref headliner);
+
+                Console.Write("Search sequence number {0}: ", ++counter);
+
+                if (BinarySearchElements(outputList, 0, outputList.Count() - 1, pair.Value, pair.Key, flag).Any())
+                {
+                    flag = true;
+                    outputList = BinarySearchElements(outputList, 0, outputList.Count() - 1, pair.Value, pair.Key, flag);
+                }
+
+                // if exact elements were not found - proceed to substring (partial) search
+                if (!flag)
+                {
+                    Console.WriteLine("Proceeding to substring search...");
+                    outputList = SubstringLinearSearch(outputList, pair.Value, pair.Key);
+                }
+
+                flag = false;
             }
 
             return outputList;
@@ -253,7 +275,7 @@ namespace GimmonixTest
             return outputList;
         }
 
-        public static List<Hotel> SearchElements(List<Hotel> inputList, int leftBoundry, int rightBoundry, string target, int propertyIndexNumberToSearchBy)
+        public static List<Hotel> BinarySearchElements(List<Hotel> inputList, int leftBoundry, int rightBoundry, string target, int propertyIndexNumberToSearchBy, bool flag)
         {
             if (leftBoundry <= rightBoundry)
             {
@@ -264,6 +286,7 @@ namespace GimmonixTest
                 {
                     List<Hotel> outputList = new List<Hotel>();
                     int placeholder = middle;
+
                     while (inputList.ElementAt(placeholder).GetSomeProperty(propertyIndexNumberToSearchBy).Equals(target))
                     {
                         placeholder--;
@@ -277,72 +300,43 @@ namespace GimmonixTest
                         placeholder++;
                         counter++;
                     }
-                    Console.WriteLine("{0} requested hotels have been added!\n", counter);
+                    if (flag == true)
+                        Console.Write("\n{0} fully matching elements have been found! ", counter);
+
                     return outputList;
                 }
 
                 // in case the target located above
                 if (inputList.ElementAt(middle).GetSomeProperty(propertyIndexNumberToSearchBy).CompareTo(target) < 0)
                 {
-                    return SearchElements(inputList, middle + 1, rightBoundry, target, propertyIndexNumberToSearchBy);
+                    return BinarySearchElements(inputList, middle + 1, rightBoundry, target, propertyIndexNumberToSearchBy, flag); ;
                 }
 
                 // in case the target located below
-                return SearchElements(inputList, leftBoundry, middle - 1, target, propertyIndexNumberToSearchBy);
+                return BinarySearchElements(inputList, leftBoundry, middle - 1, target, propertyIndexNumberToSearchBy, flag);
             }
 
-            return null;
+            // elements were not found
+            Console.Write("\n0 fully matching elements have been found!\n");
+            return new List<Hotel>();
         }
 
-        public static List<Hotel> RemoveDuplicates(List<Hotel> inputList)
+        public static List<Hotel> SubstringLinearSearch(List<Hotel> inputList, string target, int propertyIndexNumberToSearchBy)
         {
             List<Hotel> outputList = new List<Hotel>();
-
-            int i;
-            for (i = 0; i < inputList.Count - 1; i++)
-            {
-                if (!inputList[i].RowId.Equals(inputList[i + 1].RowId))
-                    outputList.Add(inputList[i]);
-
-                else
-                    Console.WriteLine("Duplicate found with ID:" + inputList[i].RowId);
-
-            }
-
-            outputList.Add(inputList[i]);
-            return outputList;
-        }
-
-        public static Hotel FindHotel(List<Hotel> inputList, int inspectedRowId)
-        {
+            int counter = 0;
             foreach (Hotel hotel in inputList)
             {
-                if (hotel.RowId.Equals(inspectedRowId))
-                    return hotel;
-            }
-            return null;
-        }
-
-        public static List<Hotel> RemoveDuplicationsLinear(ref List<Hotel> inputList)
-        {
-            List<Hotel> outputList = new List<Hotel>();
-            bool flag = false;
-
-            for (int i = 0; i < inputList.Count - 1; i++)
-            {
-                for (int j = inputList.Count - 1; i < j; j--)
+                if (hotel.GetSomeProperty(propertyIndexNumberToSearchBy).Contains(target))
                 {
-                    Console.WriteLine("Comparing elements {0} and {1}", i, j);
-                    if (inputList.ElementAt(i).RowId.Equals(inputList.ElementAt(j).RowId))
-                    {
-                        Console.WriteLine("************* Match! *************");
-                        throw new Exception("************************************************");
-                    }
+                    outputList.Add(hotel);
+                    counter++;
                 }
             }
-
+            Console.WriteLine("{0} partial matching elements were found!\n", counter);
             return outputList;
         }
+
     }
 }
 

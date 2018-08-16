@@ -78,6 +78,8 @@ namespace GimmonixTest
         }
 
         // Methods
+
+
         public bool ConnectToServer()
         {
             try
