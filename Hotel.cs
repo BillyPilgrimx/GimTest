@@ -49,11 +49,13 @@ namespace GimmonixTest
 
         public Hotel(string line)
         {
+            // breaking each line into tokens
             char[] seperatorArray1 = { ',' };
             int maxTokensReturned = 32;
             string[] tokens = line.Split(seperatorArray1, maxTokensReturned);
             int i = 0;
 
+            // breaking each token to eliminae special chars - creating a format for all entries
             for (int j = 0; j < tokens.Count(); j++)
             {
                 char[] seperatorArray2 = { '"', '\'', '\\', '`' };
@@ -64,7 +66,6 @@ namespace GimmonixTest
                 {
                     tokens[j] += @"" + innerTokens[k] + @"";
                 }
-
             }
 
             RowId = tokens[i++].Trim();
@@ -100,40 +101,6 @@ namespace GimmonixTest
             PropertySubCategory = tokens[i++].Trim();
             HotelInfoTranslation = tokens[i++]; // no trim
 
-            /*
-            RowId = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            SupplierId = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            SupplierKey = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            CountryCode = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            State = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            CityCode = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            CityName = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            NormalizedCityName = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            DisplayName = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            Address = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            ZipCode = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            StarRating = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            ChainCode = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            Lat = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            Lng = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            RoomCount = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            Phone = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            Fax = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            Email = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            WebSite = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            CreateDate = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            IsActive = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            UpdateCycleId = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            RatingUrl = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            RatingCount = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            Rating = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            PropertyType = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            StatusChangeDate = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            ChangeScore = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            PropertyCategory = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            PropertySubCategory = tokens[i++].Trim().Replace("'", "''").Replace(@"\", @"\\");
-            HotelInfoTranslation = tokens[i++].Replace("'", "''").Replace(@"\", @"\\"); // no trim here
-            */
         }
 
         public string GetSomeProperty(int propertyNumber)

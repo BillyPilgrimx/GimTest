@@ -9,7 +9,7 @@ using MySql.Data.MySqlClient;
 
 namespace GimmonixTest
 {
-    class DBConnection
+    public class DBConnection
     {
         // Attributes
         private static DBConnection instance = null;
@@ -78,13 +78,11 @@ namespace GimmonixTest
         }
 
         // Methods
-
-
         public bool ConnectToServer()
         {
             try
             {
-                Console.Write("Connecting to '{0}' server... ", ServerName);
+                Console.Write("\nConnecting to '{0}' server... ", ServerName);
                 string connectionString = string.Format("server={0}; password={1}; port={2}; UID={3}; SslMode=none", ServerName, ServerPassword, PortNumber, UserName);
                 this.connection = new MySqlConnection(connectionString);
                 connection.Open();
@@ -120,6 +118,26 @@ namespace GimmonixTest
             catch (Exception e)
             {
                 Console.WriteLine("Something went wrong during the server disconnection: ");
+                Console.WriteLine(e.Message + "\n");
+                return false;
+            }
+        }
+
+        public bool DropDatabase(string _dbName)
+        {
+            try
+            {
+                string dropDBcmd = string.Format("DROP DATABASE IF EXISTS {0}", _dbName);
+
+                MySqlCommand sqlCommand = this.connection.CreateCommand();
+                sqlCommand.CommandText = dropDBcmd;
+                sqlCommand.ExecuteNonQuery();
+                Console.WriteLine("Database droped!\n");
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Something went wrong during dropping database: ");
                 Console.WriteLine(e.Message + "\n");
                 return false;
             }
@@ -170,7 +188,7 @@ namespace GimmonixTest
                     "State varchar(255) NULL, CityCode varchar(255) NULL, CityName varchar(255) NULL, NormalizedCityName varchar(255) NULL, DisplayName varchar(255) NULL, Address varchar(255) NULL, ZipCode varchar(255) NULL, " +
                     "StarRating varchar(255) NULL, ChainCode varchar(255) NULL, Lat varchar(255) NULL, Lng varchar(255) NULL, RoomCount varchar(255) NULL, Phone varchar(255) NULL, Fax varchar(255) NULL, Email varchar(255) NULL, " +
                     "WebSite varchar(255) NULL, CreateDate varchar(255) NULL, IsActive varchar(255) NULL, UpdateCycleId varchar(255) NULL, RatingUrl varchar(255) NULL, RatingCount varchar(255) NULL, Rating varchar(255) NULL, " +
-                    "PropertyType varchar(255) NULL, StatusChangeDate varchar(255) NULL, ChangeScore varchar(255) NULL, PropertyCategory varchar(255) NULL, PropertySubCategory varchar(255) NULL, HotelInfoTranslation varchar(255) NULL)", _tableName);
+                    "PropertyType varchar(255) NULL, StatusChangeDate varchar(255) NULL, ChangeScore varchar(255) NULL, PropertyCategory varchar(255) NULL, PropertySubCategory varchar(255) NULL, HotelInfoTranslation TEXT NULL)", _tableName);
 
                 MySqlCommand sqlCommand = this.connection.CreateCommand();
                 sqlCommand.CommandText = createTableCommand;
@@ -196,7 +214,7 @@ namespace GimmonixTest
                 string query = string.Empty;
                 int counter = 0;
 
-                Console.Write("Inserting {0} hotels to '{1}' table...\n", hotelList.Count,_tableName);
+                Console.Write("Inserting {0} hotels to '{1}' table...\n", hotelList.Count, _tableName);
                 foreach (Hotel hotel in hotelList)
                 {
                     query = string.Format("INSERT INTO {0} VALUES ('{1}', '{2}', '{3}', '{4}', '{5}'," +

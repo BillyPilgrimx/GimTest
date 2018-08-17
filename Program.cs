@@ -21,38 +21,43 @@ namespace GimmonixTest
             string tableName = "data";
 
             string inputPath = @"resources\hotels.csv";
-            string outputPath1 = @"resources\hotelsSorted.csv";
-            string outputPath2 = @"resources\hotelsSortedAndFound.csv";
+            string outputPath = @"resources\hotelsOutput.csv";
             string headliner = string.Empty;
 
             StreamReader streamReader = new StreamReader(inputPath);
-            StreamWriter streamWriter1 = new StreamWriter(outputPath1);
-            StreamWriter streamWriter2 = new StreamWriter(outputPath2);
+            StreamWriter streamWriter = new StreamWriter(outputPath);
 
-            Console.WriteLine("Hello there!\n");
-            Console.Write("Loading: {0} input file... ", inputPath);
-            string text = streamReader.ReadToEnd();
-            Console.WriteLine("File loaded!\n");
-
-            // reading the whole text and breaking it into lines + creating a list of Hotel objects (a Hotel for each line)
-            string[] lines = text.Split('\n');
             List<Hotel> hotelsOriginal = new List<Hotel>();
             List<Hotel> hotelsOutput = new List<Hotel>();
-            List<int> parameterList = new List<int>();
+
+            // reading file, extracting the whole text and breaking it into lines + creating a list of Hotel objects (a Hotel for each line)
+            string text = ReadFile(streamReader, inputPath);
+            string[] lines = text.Split('\n');
 
             ReadLinesAndCreateHotels(lines, ref hotelsOriginal, ref headliner);
-            hotelsOutput = Menu_SortAndSearch(hotelsOriginal, ref streamWriter1, ref headliner);
 
-            if (hotelsOutput.Any() && hotelsOutput != null)
-                ReadHotelsListAndCreateOutputFile(hotelsOutput, ref streamWriter2, ref headliner);
+            hotelsOutput = Menu_SortAndSearch(hotelsOriginal, ref headliner);
+
+            ReadHotelsListAndCreateOutputFile(hotelsOutput, ref streamWriter, ref headliner, outputPath);
 
             DBConnection dbConn = DBConnection.GetInstance(serverName, serverPassword, portNumber, userName);
-            dbConn.ConnectToServer();
-            dbConn.CreateAndUseDatabase(dbName);
-            dbConn.CreateTable(tableName);
-            dbConn.InsertHotels(hotelsOriginal, tableName);
 
+            DBManager(dbConn, dbName, tableName, hotelsOutput);
+
+            streamReader.Close();
+            streamWriter.Close();
             Console.WriteLine("End of Program!\n");
+        }
+
+        // Static Methods
+        public static string ReadFile(StreamReader _streamReader, string _inputPath)
+        {
+            Console.WriteLine("Hello there!\n");
+            Console.Write("Loading: {0} input file... ", _inputPath);
+            string _text = _streamReader.ReadToEnd();
+            Console.WriteLine("File loaded!\n");
+
+            return _text;
         }
 
         public static void ReadLinesAndCreateHotels(string[] lines, ref List<Hotel> inputHotels, ref string headliner)
@@ -66,25 +71,27 @@ namespace GimmonixTest
             }
         }
 
-        public static void ReadHotelsListAndCreateOutputFile(List<Hotel> inputHotels, ref StreamWriter streamWriter, ref string headliner)
+        public static void ReadHotelsListAndCreateOutputFile(List<Hotel> inputHotels, ref StreamWriter _streamWriter, ref string headliner, string _outputPath)
         {
+            Console.Write("Creating: {0} output file... ", _outputPath);
             for (int i = 0; i < inputHotels.Count; i++)
             {
                 if (i == 0 && !string.IsNullOrEmpty(headliner))
-                    streamWriter.Write(headliner);
+                    _streamWriter.Write(headliner);
 
-                streamWriter.Write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31}",
+                _streamWriter.Write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31}",
                 inputHotels[i].RowId, inputHotels[i].SupplierId, inputHotels[i].SupplierKey, inputHotels[i].CountryCode, inputHotels[i].State, inputHotels[i].CityCode,
                 inputHotels[i].CityName, inputHotels[i].NormalizedCityName, inputHotels[i].DisplayName, inputHotels[i].Address, inputHotels[i].ZipCode, inputHotels[i].StarRating,
                 inputHotels[i].ChainCode, inputHotels[i].Lat, inputHotels[i].Lng, inputHotels[i].RoomCount, inputHotels[i].Phone, inputHotels[i].Fax, inputHotels[i].Email, inputHotels[i].WebSite,
                 inputHotels[i].CreateDate, inputHotels[i].IsActive, inputHotels[i].UpdateCycleId, inputHotels[i].RatingUrl, inputHotels[i].RatingCount, inputHotels[i].Rating,
                 inputHotels[i].PropertyType, inputHotels[i].StatusChangeDate, inputHotels[i].ChangeScore, inputHotels[i].PropertyCategory, inputHotels[i].PropertySubCategory, inputHotels[i].HotelInfoTranslation);
 
-                streamWriter.Flush();
+                _streamWriter.Flush();
             }
+            Console.WriteLine("Created!\n");
         }
 
-        public static List<Hotel> Menu_SortAndSearch(List<Hotel> inputList, ref StreamWriter streamWriter, ref string headliner)
+        public static List<Hotel> Menu_SortAndSearch(List<Hotel> inputList, ref string headliner)
         {
             Hotel tmpHotel = new Hotel();
             List<KeyValuePair<int, string>> pairs = new List<KeyValuePair<int, string>>();
@@ -138,7 +145,7 @@ namespace GimmonixTest
                 {
                     Console.Write("Would you like to add another parameter to the search? (y/n): ");
                     innerChoiceChar = (char)Console.Read();
-                    Console.ReadLine();
+                    Console.ReadLine(); // flushing the buffer
 
                     if (innerChoiceChar != 'y' && innerChoiceChar != 'n')
                         Console.WriteLine("Invalid input, please try again...");
@@ -146,7 +153,7 @@ namespace GimmonixTest
                 } while (innerChoiceChar != 'y' && innerChoiceChar != 'n');
 
             } while (innerChoiceChar != 'n');
-            Console.WriteLine("***************************************************************");
+            Console.WriteLine("\n***************************************************************\n");
 
             // Sorting and searching
             List<Hotel> outputList = new List<Hotel>(inputList);
@@ -156,26 +163,23 @@ namespace GimmonixTest
             foreach (KeyValuePair<int, string> pair in pairs)
             {
                 outputList = MergeSort(outputList, pair.Key);
-                ReadHotelsListAndCreateOutputFile(outputList, ref streamWriter, ref headliner);
 
                 Console.Write("Search sequence number {0}: ", ++counter);
 
-                if (BinarySearchElements(outputList, 0, outputList.Count() - 1, pair.Value, pair.Key, flag).Any())
+                if (BinarySearch(outputList, 0, outputList.Count() - 1, pair.Value, pair.Key, flag).Any())
                 {
                     flag = true;
-                    outputList = BinarySearchElements(outputList, 0, outputList.Count() - 1, pair.Value, pair.Key, flag);
+                    outputList = BinarySearch(outputList, 0, outputList.Count() - 1, pair.Value, pair.Key, flag);
                 }
 
                 // if exact elements were not found - proceed to substring (partial) search
                 if (!flag)
-                {
-                    Console.WriteLine("Proceeding to substring search...");
                     outputList = SubstringLinearSearch(outputList, pair.Value, pair.Key);
-                }
 
                 flag = false;
             }
 
+            Console.WriteLine("***************************************************************\n");
             return outputList;
         }
 
@@ -275,7 +279,7 @@ namespace GimmonixTest
             return outputList;
         }
 
-        public static List<Hotel> BinarySearchElements(List<Hotel> inputList, int leftBoundry, int rightBoundry, string target, int propertyIndexNumberToSearchBy, bool flag)
+        public static List<Hotel> BinarySearch(List<Hotel> inputList, int leftBoundry, int rightBoundry, string target, int propertyIndexNumberToSearchBy, bool flag)
         {
             if (leftBoundry <= rightBoundry)
             {
@@ -301,7 +305,7 @@ namespace GimmonixTest
                         counter++;
                     }
                     if (flag == true)
-                        Console.Write("\n{0} fully matching elements have been found! ", counter);
+                        Console.WriteLine("\n{0} fully matching elements have been found!\n", counter);
 
                     return outputList;
                 }
@@ -309,15 +313,15 @@ namespace GimmonixTest
                 // in case the target located above
                 if (inputList.ElementAt(middle).GetSomeProperty(propertyIndexNumberToSearchBy).CompareTo(target) < 0)
                 {
-                    return BinarySearchElements(inputList, middle + 1, rightBoundry, target, propertyIndexNumberToSearchBy, flag); ;
+                    return BinarySearch(inputList, middle + 1, rightBoundry, target, propertyIndexNumberToSearchBy, flag); ;
                 }
 
                 // in case the target located below
-                return BinarySearchElements(inputList, leftBoundry, middle - 1, target, propertyIndexNumberToSearchBy, flag);
+                return BinarySearch(inputList, leftBoundry, middle - 1, target, propertyIndexNumberToSearchBy, flag);
             }
 
             // elements were not found
-            Console.Write("\n0 fully matching elements have been found!\n");
+            Console.WriteLine("\n0 fully matching elements have been found!");
             return new List<Hotel>();
         }
 
@@ -337,6 +341,32 @@ namespace GimmonixTest
             return outputList;
         }
 
+        public static void DBManager(DBConnection dbConn, string _dbName, string _tableName, List<Hotel> inputList)
+        {
+            char choice;
+
+            Console.Write("Would you like to insert the the requested list into the database? (y/n): ");
+            choice = (char)Console.Read();
+            Console.ReadLine(); // flushing the buffer
+
+            while (choice != 'y' && choice != 'n')
+            {
+                Console.WriteLine("Invalid input plese try again...");
+                Console.Write("Would you like to insert the the requested list into the dayabase? (y/n): ");
+                choice = (char)Console.Read();
+                Console.ReadLine(); // flushing the buffer
+            }
+
+            if (choice == 'y')
+            {
+                dbConn.ConnectToServer();
+                dbConn.DropDatabase(_dbName);
+                dbConn.CreateAndUseDatabase(_dbName);
+                dbConn.CreateTable(_tableName);
+                dbConn.InsertHotels(inputList, _tableName);
+                dbConn.DisconnectFromServer();
+            }
+        }
     }
 }
 
